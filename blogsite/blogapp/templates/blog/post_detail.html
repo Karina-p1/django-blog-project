@@ -290,10 +290,10 @@
         {% if user.is_authenticated and user == post.author %}
         <div class="post-actions-bar">
           <a href="{% url 'update_post' post.id %}" class="btn btn-edit"
-            >✏️ Edit Post</a
+            >Edit Post</a
           >
           <a href="{% url 'delete_post' post.id %}" class="btn btn-delete"
-            >🗑️ Delete Post</a
+            >Delete Post</a
           >
         </div>
         {% endif %}

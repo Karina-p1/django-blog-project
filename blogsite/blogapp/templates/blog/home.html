@@ -78,10 +78,10 @@
       }
 
       .hero {
-        border-bottom: 3px double var(--border);
+        /* border-bottom: 3px double var(--border); */
         padding: 3rem 2rem 2rem;
         text-align: center;
-        background: linear-gradient(180deg, #fff 0%, var(--paper) 100%);
+        background: linear-gradient(180deg, #ffffff12 0%, var(--paper) 100%);
       }
       .hero h1 {
         font-family: "Playfair Display", serif;
@@ -94,7 +94,7 @@
         color: var(--accent);
       }
       .hero p {
-        color: var(--muted);
+        color: rgb(128, 128, 128);
         margin-top: 0.75rem;
         font-size: 1rem;
         letter-spacing: 0.12em;
@@ -287,7 +287,6 @@
         padding: 2rem;
         color: var(--muted);
         font-size: 0.8rem;
-        border-top: 1px solid var(--border);
         margin-top: 2rem;
       }
     </style>
@@ -347,10 +346,10 @@
             {% if user.is_authenticated and user == post.author %}
             <div class="post-actions">
               <a href="{% url 'update_post' post.id %}" class="btn btn-edit"
-                >✏️ Edit</a
+                >Edit</a
               >
               <a href="{% url 'delete_post' post.id %}" class="btn btn-delete"
-                >🗑️ Delete</a
+                >Delete</a
               >
             </div>
             {% endif %}
