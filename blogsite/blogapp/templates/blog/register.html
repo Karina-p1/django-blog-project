@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #faf8f3;
+        font-family: "Source Sans 3", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e8e0d0;
+        border-radius: 12px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 0.25rem;
+      }
+      .subtitle {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 0.88rem;
+        margin-bottom: 2rem;
+      }
+      label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        color: #333;
+        margin-top: 1rem;
+      }
+      input {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid #e8e0d0;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background: #faf8f3;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        outline: none;
+        border-color: #c0392b;
+      }
+      .helptext {
+        font-size: 0.78rem;
+        color: #999;
+        margin-top: 0.25rem;
+      }
+      .errorlist {
+        list-style: none;
+        font-size: 0.82rem;
+        color: #c0392b;
+        margin-top: 0.25rem;
+      }
+      .btn-submit {
+        width: 100%;
+        margin-top: 1.5rem;
+        background: #1a1a2e;
+        color: #fff;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s;
+      }
+      .btn-submit:hover {
+        background: #c0392b;
+      }
+      .footer-link {
+        text-align: center;
+        margin-top: 1.25rem;
+        font-size: 0.88rem;
+        color: #7f8c8d;
+      }
+      .footer-link a {
+        color: #c0392b;
+        text-decoration: none;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Join Us</h1>
+      <p class="subtitle">Create your account to start blogging</p>
+
+      <form method="POST">
+        {% csrf_token %} {% for field in form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }} {% if field.help_text %}
+        <p class="helptext">{{ field.help_text }}</p>
+        {% endif %} {% if field.errors %}
+        <ul class="errorlist">
+          {% for error in field.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endfor %}
+        <button type="submit" class="btn-submit">Create Account</button>
+      </form>
+
+      <p class="footer-link">
+        Already have an account? <a href="{% url 'login' %}">Log in</a>
+      </p>
+    </div>
+  </body>
+</html>

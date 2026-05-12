@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ post.title }}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --ink: #1a1a2e;
+        --paper: #faf8f3;
+        --accent: #c0392b;
+        --muted: #7f8c8d;
+        --border: #e8e0d0;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Source Sans 3", sans-serif;
+      }
+
+      nav {
+        background: var(--ink);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+      .nav-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        color: #fff;
+        text-decoration: none;
+      }
+      .nav-brand span {
+        color: var(--accent);
+      }
+      .nav-links {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .nav-links a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .nav-links a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .btn-nav-primary {
+        background: var(--accent) !important;
+        color: #fff !important;
+        font-weight: 600;
+      }
+
+      /* Hero image */
+      .post-hero-image {
+        width: 100%;
+        max-height: 420px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .container {
+        max-width: 740px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        transition: color 0.2s;
+      }
+      .back-link:hover {
+        color: var(--ink);
+      }
+
+      .post-header {
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .post-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 900;
+        line-height: 1.2;
+      }
+      .post-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        flex-wrap: wrap;
+      }
+      .post-meta .author {
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .post-actions-bar {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.4rem 1rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        cursor: pointer;
+        border: none;
+      }
+      .btn-edit {
+        background: #eaf4fb;
+        color: #2980b9;
+        border: 1px solid #aed6f1;
+      }
+      .btn-edit:hover {
+        background: #2980b9;
+        color: #fff;
+      }
+      .btn-delete {
+        background: #fdf2f2;
+        color: var(--accent);
+        border: 1px solid #f5b7b1;
+      }
+      .btn-delete:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .post-body {
+        font-size: 1.1rem;
+        line-height: 1.85;
+        color: #333;
+      }
+
+      .comments-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
+      }
+      .comments-section h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+      }
+      .comment {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .comment-author {
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .comment-date {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-left: 0.5rem;
+      }
+      .comment-content {
+        margin-top: 0.4rem;
+        font-size: 0.95rem;
+        color: #444;
+        line-height: 1.6;
+      }
+      .comment-form {
+        margin-top: 1.5rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+      .comment-form h3 {
+        font-family: "Playfair Display", serif;
+        margin-bottom: 1rem;
+      }
+      .comment-form textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: "Source Sans 3", sans-serif;
+        font-size: 0.95rem;
+        resize: vertical;
+        min-height: 100px;
+        background: var(--paper);
+      }
+      .comment-form textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .btn-submit {
+        margin-top: 0.75rem;
+        background: var(--ink);
+        color: #fff;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-submit:hover {
+        background: var(--accent);
+      }
+      .login-prompt {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--muted);
+        background: #fff;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        margin-top: 1rem;
+      }
+      .login-prompt a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="{% url 'home' %}" class="nav-brand">The<span>Blog</span></a>
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+        <a href="{% url 'create_post' %}" class="btn-nav-primary btn"
+          >+ New Post</a
+        >
+        <a href="#">{{ user.username }}</a>
+        <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}" class="btn-nav-primary btn">Register</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    {% if post.image %}
+    <img
+      src="{{ post.image.url }}"
+      alt="{{ post.title }}"
+      class="post-hero-image"
+    />
+    {% endif %}
+
+    <div class="container">
+      <a href="{% url 'home' %}" class="back-link">← Back to all posts</a>
+
+      <div class="post-header">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+          <span class="author">{{ post.author }}</span>
+          <span>·</span>
+          <span>{{ post.created_at|date:"N j, Y · g:i a" }}</span>
+        </div>
+        {% if user.is_authenticated and user == post.author %}
+        <div class="post-actions-bar">
+          <a href="{% url 'update_post' post.id %}" class="btn btn-edit"
+            >✏️ Edit Post</a
+          >
+          <a href="{% url 'delete_post' post.id %}" class="btn btn-delete"
+            >🗑️ Delete Post</a
+          >
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="post-body">{{ post.content }}</div>
+
+      <div class="comments-section">
+        <h2>Comments ({{ post.comment_set.count }})</h2>
+        {% for comment in post.comment_set.all %}
+        <div class="comment">
+          <span class="comment-author">{{ comment.user }}</span>
+          <span class="comment-date"
+            >{{ comment.created_at|date:"N j, Y" }}</span
+          >
+          <p class="comment-content">{{ comment.content }}</p>
+        </div>
+        {% empty %}
+        <p style="color: var(--muted); font-style: italic">
+          No comments yet. Be the first!
+        </p>
+        {% endfor %} {% if user.is_authenticated %}
+        <div class="comment-form">
+          <h3>Leave a Comment</h3>
+          <form method="POST">
+            {% csrf_token %} {{ comment_form.content }}
+            <button type="submit" class="btn-submit">Post Comment</button>
+          </form>
+        </div>
+        {% else %}
+        <div class="login-prompt">
+          <a href="{% url 'login' %}">Log in</a> to leave a comment.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
