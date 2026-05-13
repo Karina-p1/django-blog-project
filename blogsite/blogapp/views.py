@@ -1,13 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import RegisterForm, PostForm, CommentForm
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Post
+from django.db.models import Q
+from .forms import RegisterForm, PostForm, CommentForm, ProfileForm
+from .models import Post, Profile
 
 
 def home(request):
+    query = request.GET.get('q', '').strip()
     posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'blog/home.html', {'posts': posts})
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )
+    return render(request, 'blog/home.html', {'posts': posts, 'query': query})
 
 
 def post_detail(request, id):
@@ -27,7 +36,7 @@ def post_detail(request, id):
 
     return render(request, 'blog/post_detail.html', {
         'post': post,
-        'comment_form': comment_form
+        'comment_form': comment_form,
     })
 
 
@@ -35,7 +44,7 @@ def post_detail(request, id):
 def create_post(request):
     form = PostForm()
     if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)  # Include request.FILES to handle image uploads
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -48,12 +57,9 @@ def create_post(request):
 @login_required
 def update_post(request, id):
     post = get_object_or_404(Post, id=id)
-
-    # Only the author can edit
     if request.user != post.author:
         messages.error(request, 'You are not allowed to edit this post.')
         return redirect('home')
-
     form = PostForm(instance=post)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
@@ -61,24 +67,19 @@ def update_post(request, id):
             form.save()
             messages.success(request, 'Post updated successfully!')
             return redirect('post_detail', id=post.id)
-
     return render(request, 'blog/update_post.html', {'form': form, 'post': post})
 
 
 @login_required
 def delete_post(request, id):
     post = get_object_or_404(Post, id=id)
-
-    # Only the author can delete
     if request.user != post.author:
         messages.error(request, 'You are not allowed to delete this post.')
         return redirect('home')
-
     if request.method == 'POST':
         post.delete()
         messages.success(request, 'Post deleted successfully!')
         return redirect('home')
-
     return render(request, 'blog/delete_post.html', {'post': post})
 
 
@@ -91,3 +92,42 @@ def register(request):
             messages.success(request, 'Account created! You can now log in.')
             return redirect('login')
     return render(request, 'blog/register.html', {'form': form})
+
+
+# ─── New view for liking posts ────────────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def like_post(request, id):
+    post = get_object_or_404(Post, id=id)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        liked = False
+    else:
+        post.likes.add(request.user)
+        liked = True
+    return JsonResponse({'liked': liked, 'total_likes': post.total_likes()})
+
+
+def profile_view(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    profile, _   = Profile.objects.get_or_create(user=profile_user)
+    posts        = Post.objects.filter(author=profile_user).order_by('-created_at')
+    return render(request, 'blog/profile.html', {
+        'profile_user': profile_user,
+        'profile': profile,
+        'posts': posts,
+    })
+
+
+@login_required
+def edit_profile(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    form = ProfileForm(instance=profile)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated!')
+            return redirect('profile', username=request.user.username)
+    return render(request, 'blog/edit_profile.html', {'form': form})

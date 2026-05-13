@@ -69,7 +69,6 @@
         font-weight: 600;
       }
 
-      /* Hero image */
       .post-hero-image {
         width: 100%;
         max-height: 420px;
@@ -119,6 +118,10 @@
       .post-meta .author {
         font-weight: 700;
         color: var(--ink);
+        text-decoration: none;
+      }
+      .post-meta .author:hover {
+        color: var(--accent);
       }
       .post-actions-bar {
         display: flex;
@@ -155,6 +158,44 @@
       .btn-delete:hover {
         background: var(--accent);
         color: #fff;
+      }
+
+      /* ── Like button ── */
+      .like-wrapper {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      #like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        border: 1.5px solid var(--accent);
+        font-family: inherit;
+        background: transparent;
+        color: var(--accent);
+      }
+      #like-btn.liked {
+        background: var(--accent);
+        color: #fff;
+      }
+      #like-btn:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+      .like-guest {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .like-guest a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
       }
 
       .post-body {
@@ -232,6 +273,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s;
+        font-family: inherit;
       }
       .btn-submit:hover {
         background: var(--accent);
@@ -257,10 +299,8 @@
       <a href="{% url 'home' %}" class="nav-brand">The<span>Blog</span></a>
       <div class="nav-links">
         {% if user.is_authenticated %}
-        <a href="{% url 'create_post' %}" class="btn-nav-primary btn"
-          >+ New Post</a
-        >
-        <a href="#">{{ user.username }}</a>
+        <a href="{% url 'create_post' %}" class="btn-nav-primary btn">+ New Post</a>
+        <a href="{% url 'profile' user.username %}">{{ user.username }}</a>
         <a href="{% url 'logout' %}">Logout</a>
         {% else %}
         <a href="{% url 'login' %}">Login</a>
@@ -270,11 +310,7 @@
     </nav>
 
     {% if post.image %}
-    <img
-      src="{{ post.image.url }}"
-      alt="{{ post.title }}"
-      class="post-hero-image"
-    />
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-hero-image" />
     {% endif %}
 
     <div class="container">
@@ -282,19 +318,38 @@
 
       <div class="post-header">
         <h1>{{ post.title }}</h1>
+
         <div class="post-meta">
-          <span class="author">{{ post.author }}</span>
+          <a href="{% url 'profile' post.author.username %}" class="author">
+            {{ post.author }}
+          </a>
           <span>·</span>
           <span>{{ post.created_at|date:"N j, Y · g:i a" }}</span>
         </div>
+
+        <!-- Like button -->
+        <div class="like-wrapper">
+          {% if user.is_authenticated %}
+          <button
+            id="like-btn"
+            data-url="{% url 'like_post' post.id %}"
+            {% if user in post.likes.all %}class="liked"{% endif %}
+          >
+            ♥ <span id="like-count">{{ post.total_likes }}</span>
+            Like{{ post.total_likes|pluralize }}
+          </button>
+          {% else %}
+          <span class="like-guest">
+            ♥ {{ post.total_likes }} Like{{ post.total_likes|pluralize }} —
+            <a href="{% url 'login' %}">log in to like</a>
+          </span>
+          {% endif %}
+        </div>
+
         {% if user.is_authenticated and user == post.author %}
         <div class="post-actions-bar">
-          <a href="{% url 'update_post' post.id %}" class="btn btn-edit"
-            >Edit Post</a
-          >
-          <a href="{% url 'delete_post' post.id %}" class="btn btn-delete"
-            >Delete Post</a
-          >
+          <a href="{% url 'update_post' post.id %}" class="btn btn-edit">Edit Post</a>
+          <a href="{% url 'delete_post' post.id %}" class="btn btn-delete">Delete Post</a>
         </div>
         {% endif %}
       </div>
@@ -306,20 +361,21 @@
         {% for comment in post.comment_set.all %}
         <div class="comment">
           <span class="comment-author">{{ comment.user }}</span>
-          <span class="comment-date"
-            >{{ comment.created_at|date:"N j, Y" }}</span
-          >
+          <span class="comment-date">{{ comment.created_at|date:"N j, Y" }}</span>
           <p class="comment-content">{{ comment.content }}</p>
         </div>
         {% empty %}
-        <p style="color: var(--muted); font-style: italic">
+        <p style="color: var(--muted); font-style: italic;">
           No comments yet. Be the first!
         </p>
-        {% endfor %} {% if user.is_authenticated %}
+        {% endfor %}
+
+        {% if user.is_authenticated %}
         <div class="comment-form">
           <h3>Leave a Comment</h3>
           <form method="POST">
-            {% csrf_token %} {{ comment_form.content }}
+            {% csrf_token %}
+            {{ comment_form.content }}
             <button type="submit" class="btn-submit">Post Comment</button>
           </form>
         </div>
@@ -330,5 +386,31 @@
         {% endif %}
       </div>
     </div>
+
+    <script>
+      const likeBtn = document.getElementById("like-btn");
+      if (likeBtn) {
+        likeBtn.addEventListener("click", function () {
+          fetch(this.dataset.url, {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              const count = data.total_likes;
+              likeBtn.innerHTML =
+                "♥ <span id='like-count'>" +
+                count +
+                "</span> Like" +
+                (count !== 1 ? "s" : "");
+              if (data.liked) {
+                likeBtn.classList.add("liked");
+              } else {
+                likeBtn.classList.remove("liked");
+              }
+            });
+        });
+      }
+    </script>
   </body>
 </html>

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ profile_user.username }} · The Blog</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --ink: #1a1a2e;
+        --paper: #faf8f3;
+        --accent: #c0392b;
+        --muted: #7f8c8d;
+        --border: #e8e0d0;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Source Sans 3", sans-serif;
+      }
+      nav {
+        background: var(--ink);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+      .nav-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        color: #fff;
+        text-decoration: none;
+      }
+      .nav-brand span {
+        color: var(--accent);
+      }
+      .nav-links {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .nav-links a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .nav-links a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .btn-nav-primary {
+        background: var(--accent) !important;
+        color: #fff !important;
+        font-weight: 600;
+      }
+
+      .container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
+
+      /* Profile header card */
+      .profile-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+      }
+      .avatar {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+      }
+      .avatar-initials {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        background: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 2rem;
+        font-family: "Playfair Display", serif;
+        flex-shrink: 0;
+      }
+      .profile-info {
+        flex: 1;
+        min-width: 200px;
+      }
+      .profile-info h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 0.25rem;
+      }
+      .profile-info .join-date {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+      }
+      .profile-info .bio {
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+      .profile-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+      }
+      .stat-val {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--ink);
+      }
+      .stat-lbl {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .btn-edit-profile {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid var(--border);
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        font-family: inherit;
+        transition: all 0.2s;
+        align-self: flex-start;
+        white-space: nowrap;
+      }
+      .btn-edit-profile:hover {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      /* Posts section */
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+      .section-header h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .post-count {
+        font-size: 0.8rem;
+        color: var(--muted);
+        background: var(--border);
+        padding: 0.2rem 0.7rem;
+        border-radius: 20px;
+      }
+
+      .post-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 1.25rem;
+        overflow: hidden;
+        transition:
+          box-shadow 0.2s,
+          transform 0.2s;
+      }
+      .post-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+      .post-cover {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        border-bottom: 1px solid var(--border);
+      }
+      .post-body {
+        padding: 1.5rem 1.75rem;
+      }
+      .post-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+      }
+      .post-title a {
+        color: var(--ink);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .post-title a:hover {
+        color: var(--accent);
+      }
+      .post-meta {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .post-excerpt {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.7;
+      }
+      .read-more {
+        display: inline-block;
+        margin-top: 0.6rem;
+        font-size: 0.82rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .read-more:hover {
+        text-decoration: underline;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 3rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="{% url 'home' %}" class="nav-brand">The<span>Blog</span></a>
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+        <a
+          href="{% url 'create_post' %}"
+          class="btn-nav-primary"
+          style="padding: 0.4rem 0.9rem; border-radius: 4px"
+          >+ New Post</a
+        >
+        <a href="{% url 'profile' user.username %}">{{ user.username }}</a>
+        <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a
+          href="{% url 'register' %}"
+          class="btn-nav-primary"
+          style="padding: 0.4rem 0.9rem; border-radius: 4px"
+          >Register</a
+        >
+        {% endif %}
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Profile card -->
+      <div class="profile-card">
+        {% if profile.avatar %}
+        <img
+          src="{{ profile.avatar.url }}"
+          alt="{{ profile_user.username }}"
+          class="avatar"
+        />
+        {% else %}
+        <div class="avatar-initials">
+          {{ profile_user.username|first|upper }}
+        </div>
+        {% endif %}
+
+        <div class="profile-info">
+          <h1>{{ profile_user.username }}</h1>
+          <p class="join-date">
+            Member since {{ profile_user.date_joined|date:"F Y" }}
+          </p>
+          {% if profile.bio %}
+          <p class="bio">{{ profile.bio }}</p>
+          {% else %}
+          <p class="bio" style="color: var(--muted); font-style: italic">
+            No bio yet.
+          </p>
+          {% endif %}
+          <div class="profile-stats">
+            <div>
+              <div class="stat-val">{{ posts.count }}</div>
+              <div class="stat-lbl">Post{{ posts.count|pluralize }}</div>
+            </div>
+          </div>
+        </div>
+
+        {% if request.user == profile_user %}
+        <a href="{% url 'edit_profile' %}" class="btn-edit-profile"
+          >Edit Profile</a
+        >
+        {% endif %}
+      </div>
+
+      <!-- Posts by this user -->
+      <div class="section-header">
+        <h2>Posts by {{ profile_user.username }}</h2>
+        <span class="post-count"
+          >{{ posts.count }} post{{ posts.count|pluralize }}</span
+        >
+      </div>
+
+      {% for post in posts %}
+      <div class="post-card">
+        {% if post.image %}
+        <img
+          src="{{ post.image.url }}"
+          alt="{{ post.title }}"
+          class="post-cover"
+        />
+        {% endif %}
+        <div class="post-body">
+          <h3 class="post-title">
+            <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
+          </h3>
+          <div class="post-meta">
+            <span>{{ post.created_at|date:"N j, Y" }}</span>
+            <span>·</span>
+            <span style="color: var(--accent)">♥ {{ post.total_likes }}</span>
+          </div>
+          <p class="post-excerpt">{{ post.content|truncatewords:25 }}</p>
+          <a href="{% url 'post_detail' post.id %}" class="read-more"
+            >Read more →</a
+          >
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty">No posts yet.</div>
+      {% endfor %}
+    </div>
+    <footer>© 2026 The Blog · Built with Django</footer>
+  </body>
+</html>

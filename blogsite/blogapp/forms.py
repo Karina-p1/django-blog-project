@@ -1,5 +1,5 @@
 from django import forms  # Importing the forms module from Django, which provides a way to create and handle forms in a Django application
-from .models import Post, Comment # Importing the Post and Comment models from the current app's models.py file, which will be used to create forms for creating and editing posts and comments
+from .models import Post, Comment, Profile # Importing the Post and Comment models from the current app's models.py file, which will be used to create forms for creating and editing posts and comments
 from django.contrib.auth.forms import UserCreationForm # Importing the UserCreationForm from Django's auth forms, which provides a built-in form for user registration, allowing users to create an account with a username and password
 from django.contrib.auth.models import User # Importing the User model from Django's auth models, which represents a user in the application and will be used to create a registration form for new users
 
@@ -22,3 +22,8 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'avatar']
