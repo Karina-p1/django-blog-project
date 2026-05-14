@@ -36,6 +36,9 @@
         align-items: center;
         justify-content: space-between;
         height: 64px;
+        position: sticky;
+        top: 0;
+        z-index: 200;
       }
       .nav-brand {
         font-family: "Playfair Display", serif;
@@ -69,17 +72,76 @@
         font-weight: 600;
       }
 
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 6px;
+      }
+      .hamburger span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #fff;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        transform-origin: center;
+      }
+      .hamburger.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .hamburger.open span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      .hamburger.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        background: var(--ink);
+        padding: 1rem 2rem 1.5rem;
+        gap: 0.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .mobile-menu.open {
+        display: flex;
+      }
+      .mobile-menu a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+      .mobile-menu a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .mobile-menu .btn-nav-primary {
+        background: var(--accent) !important;
+        color: #fff !important;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 0.25rem;
+      }
+
       .post-hero-image {
         width: 100%;
         max-height: 420px;
         object-fit: cover;
         display: block;
       }
-
       .container {
         max-width: 740px;
         margin: 0 auto;
-        padding: 3rem 2rem;
+        padding: 3rem 1.5rem;
       }
       .back-link {
         display: inline-flex;
@@ -102,18 +164,18 @@
       }
       .post-header h1 {
         font-family: "Playfair Display", serif;
-        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-size: clamp(1.6rem, 4vw, 2.8rem);
         font-weight: 900;
         line-height: 1.2;
       }
       .post-meta {
         display: flex;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
         align-items: center;
         margin-top: 1rem;
         font-size: 0.85rem;
         color: var(--muted);
-        flex-wrap: wrap;
       }
       .post-meta .author {
         font-weight: 700;
@@ -123,10 +185,28 @@
       .post-meta .author:hover {
         color: var(--accent);
       }
+
+      .category-badge {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: #fff0f0;
+        color: var(--accent);
+        border: 1px solid #f5b7b1;
+        text-decoration: none;
+      }
+      .category-badge:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+
       .post-actions-bar {
         display: flex;
         gap: 0.5rem;
         margin-top: 1rem;
+        flex-wrap: wrap;
       }
       .btn {
         display: inline-flex;
@@ -160,7 +240,6 @@
         color: #fff;
       }
 
-      /* ── Like button ── */
       .like-wrapper {
         margin-top: 1rem;
         margin-bottom: 0.5rem;
@@ -174,7 +253,9 @@
         font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s, color 0.2s;
+        transition:
+          background 0.2s,
+          color 0.2s;
         border: 1.5px solid var(--accent);
         font-family: inherit;
         background: transparent;
@@ -199,7 +280,7 @@
       }
 
       .post-body {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         line-height: 1.85;
         color: #333;
       }
@@ -292,6 +373,24 @@
         text-decoration: none;
         font-weight: 600;
       }
+
+      @media (max-width: 640px) {
+        nav {
+          padding: 0 1.25rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .hamburger {
+          display: flex;
+        }
+        .container {
+          padding: 2rem 1.25rem;
+        }
+        .post-hero-image {
+          max-height: 250px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -299,7 +398,9 @@
       <a href="{% url 'home' %}" class="nav-brand">The<span>Blog</span></a>
       <div class="nav-links">
         {% if user.is_authenticated %}
-        <a href="{% url 'create_post' %}" class="btn-nav-primary btn">+ New Post</a>
+        <a href="{% url 'create_post' %}" class="btn-nav-primary btn"
+          >+ New Post</a
+        >
         <a href="{% url 'profile' user.username %}">{{ user.username }}</a>
         <a href="{% url 'logout' %}">Logout</a>
         {% else %}
@@ -307,10 +408,27 @@
         <a href="{% url 'register' %}" class="btn-nav-primary btn">Register</a>
         {% endif %}
       </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
+    <div class="mobile-menu" id="mobileMenu">
+      {% if user.is_authenticated %}
+      <a href="{% url 'profile' user.username %}">👤 {{ user.username }}</a>
+      <a href="{% url 'create_post' %}" class="btn-nav-primary">+ New Post</a>
+      <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="btn-nav-primary">Register</a>
+      {% endif %}
+    </div>
 
     {% if post.image %}
-    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-hero-image" />
+    <img
+      src="{{ post.image.url }}"
+      alt="{{ post.title }}"
+      class="post-hero-image"
+    />
     {% endif %}
 
     <div class="container">
@@ -318,38 +436,43 @@
 
       <div class="post-header">
         <h1>{{ post.title }}</h1>
-
         <div class="post-meta">
-          <a href="{% url 'profile' post.author.username %}" class="author">
-            {{ post.author }}
-          </a>
+          <a href="{% url 'profile' post.author.username %}" class="author"
+            >{{ post.author }}</a
+          >
           <span>·</span>
           <span>{{ post.created_at|date:"N j, Y · g:i a" }}</span>
+          {% if post.category %}
+          <span>·</span>
+          <a
+            href="{% url 'home' %}?category={{ post.category.id }}"
+            class="category-badge"
+            >{{ post.category.name }}</a
+          >
+          {% endif %}
         </div>
 
-        <!-- Like button -->
         <div class="like-wrapper">
           {% if user.is_authenticated %}
-          <button
-            id="like-btn"
-            data-url="{% url 'like_post' post.id %}"
-            {% if user in post.likes.all %}class="liked"{% endif %}
-          >
-            ♥ <span id="like-count">{{ post.total_likes }}</span>
-            Like{{ post.total_likes|pluralize }}
-          </button>
+          <button id="like-btn" data-url="{% url 'like_post' post.id %}" {% if user in post.likes.all %}class="liked"{% endif %}>
+  ♥ <span id="like-count">{{ post.total_likes }}</span> Like{% if post.total_likes == 1 %}{% else %}s{% endif %}
+</button>
           {% else %}
-          <span class="like-guest">
-            ♥ {{ post.total_likes }} Like{{ post.total_likes|pluralize }} —
-            <a href="{% url 'login' %}">log in to like</a>
-          </span>
+          <span class="like-guest"
+            >♥ {{ post.total_likes }} Like{{ post.total_likes|pluralize }} —
+            <a href="{% url 'login' %}">log in to like</a></span
+          >
           {% endif %}
         </div>
 
         {% if user.is_authenticated and user == post.author %}
         <div class="post-actions-bar">
-          <a href="{% url 'update_post' post.id %}" class="btn btn-edit">Edit Post</a>
-          <a href="{% url 'delete_post' post.id %}" class="btn btn-delete">Delete Post</a>
+          <a href="{% url 'update_post' post.id %}" class="btn btn-edit"
+            >Edit Post</a
+          >
+          <a href="{% url 'delete_post' post.id %}" class="btn btn-delete"
+            >Delete Post</a
+          >
         </div>
         {% endif %}
       </div>
@@ -361,22 +484,25 @@
         {% for comment in post.comment_set.all %}
         <div class="comment">
           <span class="comment-author">{{ comment.user }}</span>
-          <span class="comment-date">{{ comment.created_at|date:"N j, Y" }}</span>
+          <span class="comment-date"
+            >{{ comment.created_at|date:"N j, Y" }}</span
+          >
           <p class="comment-content">{{ comment.content }}</p>
         </div>
         {% empty %}
-        <p style="color: var(--muted); font-style: italic;">
+        <p style="color: var(--muted); font-style: italic">
           No comments yet. Be the first!
         </p>
-        {% endfor %}
-
-        {% if user.is_authenticated %}
+        {% endfor %} {% if user.is_authenticated %}
         <div class="comment-form">
           <h3>Leave a Comment</h3>
           <form method="POST">
-            {% csrf_token %}
-            {{ comment_form.content }}
-            <button type="submit" class="btn-submit">Post Comment</button>
+            {% csrf_token %}{{ comment_form.content }}<button
+              type="submit"
+              class="btn-submit"
+            >
+              Post Comment
+            </button>
           </form>
         </div>
         {% else %}
@@ -388,6 +514,19 @@
     </div>
 
     <script>
+      const hamburger = document.getElementById("hamburger");
+      const mobileMenu = document.getElementById("mobileMenu");
+      hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("open");
+        mobileMenu.classList.toggle("open");
+      });
+      mobileMenu.querySelectorAll("a").forEach((l) =>
+        l.addEventListener("click", () => {
+          hamburger.classList.remove("open");
+          mobileMenu.classList.remove("open");
+        }),
+      );
+
       const likeBtn = document.getElementById("like-btn");
       if (likeBtn) {
         likeBtn.addEventListener("click", function () {
@@ -398,16 +537,10 @@
             .then((r) => r.json())
             .then((data) => {
               const count = data.total_likes;
-              likeBtn.innerHTML =
-                "♥ <span id='like-count'>" +
-                count +
-                "</span> Like" +
-                (count !== 1 ? "s" : "");
-              if (data.liked) {
-                likeBtn.classList.add("liked");
-              } else {
-                likeBtn.classList.remove("liked");
-              }
+likeBtn.innerHTML = '♥ <span id="like-count">' + count + '</span> Like' + (count !== 1 ? 's' : '');
+              data.liked
+                ? likeBtn.classList.add("liked")
+                : likeBtn.classList.remove("liked");
             });
         });
       }

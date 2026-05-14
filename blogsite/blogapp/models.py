@@ -4,6 +4,16 @@ from django.utils import timezone # Importing the timezone utility from Django t
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# Category model
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+ 
+    def __str__(self):
+        return self.name
+ 
+    class Meta:
+        verbose_name_plural = "Categories"
+
 # post model to represent a blog post in the database
 class Post(models.Model):
     title = models.CharField(max_length=200) 
@@ -12,7 +22,8 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Optional image field for the post
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)  
-
+    category   = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    
     def total_likes(self):
         return self.likes.count()
 

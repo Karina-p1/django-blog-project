@@ -28,6 +28,7 @@
         color: var(--ink);
         font-family: "Source Sans 3", sans-serif;
       }
+
       nav {
         background: var(--ink);
         padding: 0 2rem;
@@ -35,6 +36,9 @@
         align-items: center;
         justify-content: space-between;
         height: 64px;
+        position: sticky;
+        top: 0;
+        z-index: 200;
       }
       .nav-brand {
         font-family: "Playfair Display", serif;
@@ -68,13 +72,72 @@
         font-weight: 600;
       }
 
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 6px;
+      }
+      .hamburger span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #fff;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        transform-origin: center;
+      }
+      .hamburger.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .hamburger.open span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      .hamburger.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        background: var(--ink);
+        padding: 1rem 2rem 1.5rem;
+        gap: 0.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .mobile-menu.open {
+        display: flex;
+      }
+      .mobile-menu a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+      .mobile-menu a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .mobile-menu .btn-nav-primary {
+        background: var(--accent) !important;
+        color: #fff !important;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 0.25rem;
+      }
+
       .container {
         max-width: 760px;
         margin: 0 auto;
-        padding: 3rem 2rem;
+        padding: 3rem 1.5rem;
       }
 
-      /* Profile header card */
       .profile-card {
         background: #fff;
         border: 1px solid var(--border);
@@ -85,6 +148,7 @@
         align-items: flex-start;
         margin-bottom: 2.5rem;
         flex-wrap: wrap;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
       }
       .avatar {
         width: 88px;
@@ -109,7 +173,7 @@
       }
       .profile-info {
         flex: 1;
-        min-width: 200px;
+        min-width: 160px;
       }
       .profile-info h1 {
         font-family: "Playfair Display", serif;
@@ -117,12 +181,12 @@
         font-weight: 900;
         margin-bottom: 0.25rem;
       }
-      .profile-info .join-date {
+      .join-date {
         color: var(--muted);
         font-size: 0.85rem;
         margin-bottom: 0.5rem;
       }
-      .profile-info .bio {
+      .bio {
         color: #555;
         font-size: 0.95rem;
         line-height: 1.6;
@@ -131,7 +195,6 @@
         display: flex;
         gap: 1.5rem;
         margin-top: 0.75rem;
-        font-size: 0.85rem;
       }
       .stat-val {
         font-weight: 700;
@@ -161,7 +224,6 @@
         color: #fff;
       }
 
-      /* Posts section */
       .section-header {
         display: flex;
         justify-content: space-between;
@@ -169,6 +231,8 @@
         border-bottom: 1px solid var(--border);
         padding-bottom: 0.75rem;
         margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
       .section-header h2 {
         font-family: "Playfair Display", serif;
@@ -229,8 +293,20 @@
         color: var(--muted);
         margin-bottom: 0.75rem;
         display: flex;
-        gap: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
         align-items: center;
+      }
+      .category-badge {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        background: #fff0f0;
+        color: var(--accent);
+        border: 1px solid #f5b7b1;
+        text-decoration: none;
       }
       .post-excerpt {
         font-size: 0.95rem;
@@ -263,6 +339,41 @@
         color: var(--muted);
         font-size: 0.8rem;
         margin-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+
+      @media (max-width: 640px) {
+        nav {
+          padding: 0 1.25rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .hamburger {
+          display: flex;
+        }
+        .container {
+          padding: 2rem 1.25rem;
+        }
+        .profile-card {
+          padding: 1.5rem;
+          gap: 1rem;
+        }
+        .avatar,
+        .avatar-initials {
+          width: 64px;
+          height: 64px;
+          font-size: 1.5rem;
+        }
+        .profile-info h1 {
+          font-size: 1.4rem;
+        }
+        .post-body {
+          padding: 1.25rem;
+        }
+        .post-cover {
+          height: 160px;
+        }
       }
     </style>
   </head>
@@ -289,10 +400,22 @@
         >
         {% endif %}
       </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
+    <div class="mobile-menu" id="mobileMenu">
+      {% if user.is_authenticated %}
+      <a href="{% url 'profile' user.username %}">👤 {{ user.username }}</a>
+      <a href="{% url 'create_post' %}" class="btn-nav-primary">+ New Post</a>
+      <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="btn-nav-primary">Register</a>
+      {% endif %}
+    </div>
 
     <div class="container">
-      <!-- Profile card -->
       <div class="profile-card">
         {% if profile.avatar %}
         <img
@@ -305,7 +428,6 @@
           {{ profile_user.username|first|upper }}
         </div>
         {% endif %}
-
         <div class="profile-info">
           <h1>{{ profile_user.username }}</h1>
           <p class="join-date">
@@ -325,7 +447,6 @@
             </div>
           </div>
         </div>
-
         {% if request.user == profile_user %}
         <a href="{% url 'edit_profile' %}" class="btn-edit-profile"
           >Edit Profile</a
@@ -333,7 +454,6 @@
         {% endif %}
       </div>
 
-      <!-- Posts by this user -->
       <div class="section-header">
         <h2>Posts by {{ profile_user.username }}</h2>
         <span class="post-count"
@@ -343,13 +463,11 @@
 
       {% for post in posts %}
       <div class="post-card">
-        {% if post.image %}
-        <img
+        {% if post.image %}<img
           src="{{ post.image.url }}"
           alt="{{ post.title }}"
           class="post-cover"
-        />
-        {% endif %}
+        />{% endif %}
         <div class="post-body">
           <h3 class="post-title">
             <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
@@ -358,6 +476,12 @@
             <span>{{ post.created_at|date:"N j, Y" }}</span>
             <span>·</span>
             <span style="color: var(--accent)">♥ {{ post.total_likes }}</span>
+            {% if post.category %}<span>·</span
+            ><a
+              href="{% url 'home' %}?category={{ post.category.id }}"
+              class="category-badge"
+              >{{ post.category.name }}</a
+            >{% endif %}
           </div>
           <p class="post-excerpt">{{ post.content|truncatewords:25 }}</p>
           <a href="{% url 'post_detail' post.id %}" class="read-more"
@@ -370,5 +494,20 @@
       {% endfor %}
     </div>
     <footer>© 2026 The Blog · Built with Django</footer>
+
+    <script>
+      const hamburger = document.getElementById("hamburger");
+      const mobileMenu = document.getElementById("mobileMenu");
+      hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("open");
+        mobileMenu.classList.toggle("open");
+      });
+      mobileMenu.querySelectorAll("a").forEach((l) =>
+        l.addEventListener("click", () => {
+          hamburger.classList.remove("open");
+          mobileMenu.classList.remove("open");
+        }),
+      );
+    </script>
   </body>
 </html>

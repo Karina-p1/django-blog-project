@@ -6,21 +6,39 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
 from .forms import RegisterForm, PostForm, CommentForm, ProfileForm
-from .models import Post, Profile
+from .models import Post, Profile, Category
 
 
 def home(request):
-    query = request.GET.get('q', '').strip()
-    posts = Post.objects.all().order_by('-created_at')
+    query       = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '')
+    posts       = Post.objects.all().order_by('-created_at')
+    categories  = Category.objects.all()
+
     if query:
         posts = posts.filter(
             Q(title__icontains=query) | Q(content__icontains=query)
         )
-    return render(request, 'blog/home.html', {'posts': posts, 'query': query})
+    if category_id:
+        posts = posts.filter(category__id=category_id)
+
+    selected_category = None
+    if category_id:
+        try:
+            selected_category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            pass
+
+    return render(request, 'blog/home.html', {
+        'posts': posts,
+        'query': query,
+        'categories': categories,
+        'selected_category': selected_category,
+    })
 
 
 def post_detail(request, id):
-    post = get_object_or_404(Post, id=id)
+    post         = get_object_or_404(Post, id=id)
     comment_form = CommentForm()
 
     if request.method == 'POST':
@@ -28,7 +46,7 @@ def post_detail(request, id):
             return redirect('login')
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
-            comment = comment_form.save(commit=False)
+            comment      = comment_form.save(commit=False)
             comment.post = post
             comment.user = request.user
             comment.save()
@@ -46,7 +64,7 @@ def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
-            post = form.save(commit=False)
+            post        = form.save(commit=False)
             post.author = request.user
             post.save()
             messages.success(request, 'Post created successfully!')
@@ -94,8 +112,6 @@ def register(request):
     return render(request, 'blog/register.html', {'form': form})
 
 
-# ─── New view for liking posts ────────────────────────────────────────────────────────────────
-
 @login_required
 @require_POST
 def like_post(request, id):
@@ -110,9 +126,9 @@ def like_post(request, id):
 
 
 def profile_view(request, username):
-    profile_user = get_object_or_404(User, username=username)
-    profile, _   = Profile.objects.get_or_create(user=profile_user)
-    posts        = Post.objects.filter(author=profile_user).order_by('-created_at')
+    profile_user    = get_object_or_404(User, username=username)
+    profile, _      = Profile.objects.get_or_create(user=profile_user)
+    posts           = Post.objects.filter(author=profile_user).order_by('-created_at')
     return render(request, 'blog/profile.html', {
         'profile_user': profile_user,
         'profile': profile,
@@ -123,7 +139,7 @@ def profile_view(request, username):
 @login_required
 def edit_profile(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
-    form = ProfileForm(instance=profile)
+    form       = ProfileForm(instance=profile)
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():

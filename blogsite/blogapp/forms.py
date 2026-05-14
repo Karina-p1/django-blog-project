@@ -13,7 +13,7 @@ class RegisterForm(UserCreationForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image']  # image field added
+        fields = ['title', 'content', 'image', 'category']  # image and category fields added
         widgets = {
             'image': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
         }
